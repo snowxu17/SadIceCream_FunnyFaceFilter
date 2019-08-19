@@ -9,17 +9,15 @@ var w = 960,
     h = 720;
 var img1;
 
+//Speech recognition & speech speaking
 var speech = new p5.Speech("Alex", voiceReady);
-
-var msg1 = "I'm a sad ice cream. I melt when I am too happy ( 🙃 ) I also like to repeat myself forever, often incorrectly ";
-var note = "* Note to self: Because I have very short memory";
-var msg2 = "I am too happy now. I can't be this happy. I have to stop smiling. Stop. Stop stop. Ha ha.";
 var lang = navigator.language || 'en-US';
 var speechRec = new p5.SpeechRec(lang, gotSpeech);
 speechRec.continuous = true;
 
-var voiceOn = false;
-var smileTrack = true;
+var msg1 = "I'm a sad ice cream. I melt when I am too happy ( 🙃 ) I also like to repeat myself forever, often incorrectly ";
+var note = "* Note to self: Because I have very short memory";
+var msg2 = "I am too happy now. I can't be this happy. I have to stop smiling. Stop. Stop stop. Ha ha.";
 
 var t = 0;
 
@@ -34,6 +32,9 @@ function setup() {
 
   speech = new p5.Speech(voiceReady);
   speech.speak(msg1);
+
+  console.log(speech.voices);
+  console.log(speechRec);
 
   // Canvas colors
   b1 = color('pink');
@@ -70,14 +71,6 @@ function setup() {
     background( 51 );
     noStroke();
     fill( 0 );
-
-    console.log(speech.voices);
-    console.log(speechRec);
-
-    // Particle
-    syst_L = new ParticleSystem(createVector(windowWidth * 0.45, windowHeight * 0.6));
-    syst_R = new ParticleSystem(createVector(windowWidth * 0.55, windowHeight * 0.6));
-
 }
 
 function voiceReady(){
@@ -87,54 +80,6 @@ function voiceReady(){
 function gotSpeech() {
   console.log(speechRec);
 }
-
-let Particle = function(position) {
-  this.acceleration = createVector(0, 0.08);
-  this.velocity = createVector(random(-1, 1), random(-1, 0));
-  this.position = position.copy();
-  this.lifespan = 255;
-};
-
-Particle.prototype.run = function() {
-  this.update();
-  this.display();
-};
-
-Particle.prototype.update = function(){
-  this.velocity.add(this.acceleration);
-  this.position.add(this.velocity);
-  this.lifespan -= 4;
-};
-
-Particle.prototype.display = function() {
-  stroke(200, this.lifespan);
-  strokeWeight(.5);
-  fill(color('aqua'), this.lifespan);
-  ellipse(this.position.x, this.position.y, 12, 12);
-};
-
-Particle.prototype.isDead = function(){
-  return this.lifespan < 0;
-};
-
-let ParticleSystem = function(position) {
-  this.origin = position.copy();
-  this.particles = [];
-};
-
-ParticleSystem.prototype.addParticle = function() {
-  this.particles.push(new Particle(this.origin));
-};
-
-ParticleSystem.prototype.run = function() {
-  for (let i = this.particles.length-1; i >= 0; i--) {
-    let p = this.particles[i];
-    p.run();
-    if (p.isDead()) {
-      this.particles.splice(i, 1);
-    }
-  }
-};
 
 function draw() {
 
@@ -153,6 +98,7 @@ function draw() {
     stroke(255);
     beginShape();
     for (var i = 0; i < positions.length; i++) {
+        // uncomment to see face line up tracked by  vector points
         // vertex(offsetX + positions[i][0], offsetY + positions[i][1]);
     }
     endShape();
@@ -162,6 +108,7 @@ function draw() {
     textAlign(LEFT);
     for (var i = 0; i < positions.length; i++) {
         fill(map(i, 0, positions.length, 0, 360), 50, 100);
+        // uncomment to see each vector point
         // ellipse(offsetX + positions[i][0], offsetY + positions[i][1], 4, 4);
         // text(i, offsetX + positions[i][0], offsetY + positions[i][1]);
     }
@@ -187,7 +134,7 @@ function draw() {
         var smile = mouthLeft.dist(mouthRight);
         // console.log(size);
 
-        if (smile > 110){
+        if (smile > 115){
           speech.speak(msg2);
           console.log("too happy!!!");
         }
@@ -212,11 +159,6 @@ function draw() {
         text(smile, smile * 3 + windowWidth * 0.21, 45);
     }
 
-    // syst_L.addParticle();
-    // syst_L.run();
-    // syst_R.addParticle();
-    // syst_R.run();
-
     textAlign(CENTER);
     stroke(color('magenta'));
     fill(color('pink'));
@@ -231,7 +173,6 @@ function draw() {
 function setGradient(x, y, w, h, c1, c2, axis) {
 
   noFill();
-
   if (axis === Y_AXIS) {
 
     for (let i = y; i <= y + h; i++) {
